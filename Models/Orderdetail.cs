@@ -9,7 +9,7 @@ namespace CoffeeManagement.Models
     {
         public long Id { get; set; }
         public long? Count { get; set; }
-        public byte[] Ordertime { get; set; }
+        public string Ordertime { get; set; }
         public long? Idorder { get; set; }
         public long? Idproduct { get; set; }
         public long? Idstate { get; set; }

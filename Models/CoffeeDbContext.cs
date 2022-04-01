@@ -8,7 +8,6 @@ namespace CoffeeManagement.Models
 {
     public partial class CoffeeDbContext : DbContext
     {
-
         public CoffeeDbContext()
         {
         }
@@ -48,26 +47,18 @@ namespace CoffeeManagement.Models
                 entity.ToTable("BILLS");
 
                 entity.Property(e => e.Id)
-                    .HasColumnType("INT")
                     .ValueGeneratedNever()
                     .HasColumnName("ID");
 
                 entity.Property(e => e.Customername)
                     .IsRequired()
-                    .HasColumnType("NVARCHAR(100)")
                     .HasColumnName("CUSTOMERNAME");
 
-                entity.Property(e => e.Idcustomer)
-                    .HasColumnType("INT")
-                    .HasColumnName("IDCUSTOMER");
+                entity.Property(e => e.Idcustomer).HasColumnName("IDCUSTOMER");
 
-                entity.Property(e => e.Idstaff)
-                    .HasColumnType("INT")
-                    .HasColumnName("IDSTAFF");
+                entity.Property(e => e.Idstaff).HasColumnName("IDSTAFF");
 
-                entity.Property(e => e.Paytime)
-                    .HasColumnType("DATETIME")
-                    .HasColumnName("PAYTIME");
+                entity.Property(e => e.Paytime).HasColumnName("PAYTIME");
 
                 entity.HasOne(d => d.IdNavigation)
                     .WithOne(p => p.Bill)
@@ -88,13 +79,10 @@ namespace CoffeeManagement.Models
                 entity.ToTable("CATEGORIES");
 
                 entity.Property(e => e.Id)
-                    .HasColumnType("INT IDENTITY")
                     .ValueGeneratedNever()
                     .HasColumnName("ID");
 
-                entity.Property(e => e.Name)
-                    .HasColumnType("NVARCHAR(100)")
-                    .HasColumnName("NAME");
+                entity.Property(e => e.Name).HasColumnName("NAME");
             });
 
             modelBuilder.Entity<Customer>(entity =>
@@ -102,38 +90,24 @@ namespace CoffeeManagement.Models
                 entity.ToTable("CUSTOMERS");
 
                 entity.Property(e => e.Id)
-                    .HasColumnType("INT IDENTITY")
                     .ValueGeneratedNever()
                     .HasColumnName("ID");
 
-                entity.Property(e => e.Address)
-                    .HasColumnType("NVARCHAR")
-                    .HasColumnName("ADDRESS");
+                entity.Property(e => e.Address).HasColumnName("ADDRESS");
 
-                entity.Property(e => e.Birthday)
-                    .HasColumnType("DATETIME")
-                    .HasColumnName("BIRTHDAY");
+                entity.Property(e => e.Birthday).HasColumnName("BIRTHDAY");
 
-                entity.Property(e => e.Code)
-                    .HasColumnType("VARCHAR(15)")
-                    .HasColumnName("CODE");
+                entity.Property(e => e.Code).HasColumnName("CODE");
 
-                entity.Property(e => e.Name)
-                    .HasColumnType("NVARCHAR(100)")
-                    .HasColumnName("NAME");
+                entity.Property(e => e.Name).HasColumnName("NAME");
 
-                entity.Property(e => e.Phone)
-                    .HasColumnType("VARCHAR(15)")
-                    .HasColumnName("PHONE");
+                entity.Property(e => e.Phone).HasColumnName("PHONE");
 
                 entity.Property(e => e.Point)
-                    .HasColumnType("FLOAT")
                     .HasColumnName("POINT")
                     .HasDefaultValueSql("0");
 
-                entity.Property(e => e.Sex)
-                    .HasColumnType("NVARCHAR(20)")
-                    .HasColumnName("SEX");
+                entity.Property(e => e.Sex).HasColumnName("SEX");
             });
 
             modelBuilder.Entity<Order>(entity =>
@@ -141,17 +115,12 @@ namespace CoffeeManagement.Models
                 entity.ToTable("ORDERS");
 
                 entity.Property(e => e.Id)
-                    .HasColumnType("INT IDENTITY")
                     .ValueGeneratedNever()
                     .HasColumnName("ID");
 
-                entity.Property(e => e.Idstate)
-                    .HasColumnType("INT")
-                    .HasColumnName("IDSTATE");
+                entity.Property(e => e.Idstate).HasColumnName("IDSTATE");
 
-                entity.Property(e => e.Idtable)
-                    .HasColumnType("INT")
-                    .HasColumnName("IDTABLE");
+                entity.Property(e => e.Idtable).HasColumnName("IDTABLE");
 
                 entity.HasOne(d => d.IdstateNavigation)
                     .WithMany(p => p.Orders)
@@ -167,29 +136,18 @@ namespace CoffeeManagement.Models
                 entity.ToTable("ORDERDETAILS");
 
                 entity.Property(e => e.Id)
-                    .HasColumnType("INT IDENTITY")
                     .ValueGeneratedNever()
                     .HasColumnName("ID");
 
-                entity.Property(e => e.Count)
-                    .HasColumnType("INT")
-                    .HasColumnName("COUNT");
+                entity.Property(e => e.Count).HasColumnName("COUNT");
 
-                entity.Property(e => e.Idorder)
-                    .HasColumnType("INT")
-                    .HasColumnName("IDORDER");
+                entity.Property(e => e.Idorder).HasColumnName("IDORDER");
 
-                entity.Property(e => e.Idproduct)
-                    .HasColumnType("INT")
-                    .HasColumnName("IDPRODUCT");
+                entity.Property(e => e.Idproduct).HasColumnName("IDPRODUCT");
 
-                entity.Property(e => e.Idstate)
-                    .HasColumnType("INT")
-                    .HasColumnName("IDSTATE");
+                entity.Property(e => e.Idstate).HasColumnName("IDSTATE");
 
-                entity.Property(e => e.Ordertime)
-                    .HasColumnType("DATETIME")
-                    .HasColumnName("ORDERTIME");
+                entity.Property(e => e.Ordertime).HasColumnName("ORDERTIME");
 
                 entity.HasOne(d => d.IdorderNavigation)
                     .WithMany(p => p.Orderdetails)
@@ -209,13 +167,10 @@ namespace CoffeeManagement.Models
                 entity.ToTable("ORDERDETAILSTATES");
 
                 entity.Property(e => e.Id)
-                    .HasColumnType("INT IDENTITY")
                     .ValueGeneratedNever()
                     .HasColumnName("ID");
 
-                entity.Property(e => e.Name)
-                    .HasColumnType("NVARCHAR(100)")
-                    .HasColumnName("NAME");
+                entity.Property(e => e.Name).HasColumnName("NAME");
             });
 
             modelBuilder.Entity<Orderstate>(entity =>
@@ -223,13 +178,10 @@ namespace CoffeeManagement.Models
                 entity.ToTable("ORDERSTATES");
 
                 entity.Property(e => e.Id)
-                    .HasColumnType("INT IDENTITY")
                     .ValueGeneratedNever()
                     .HasColumnName("ID");
 
-                entity.Property(e => e.Name)
-                    .HasColumnType("NVARCHAR(100)")
-                    .HasColumnName("NAME");
+                entity.Property(e => e.Name).HasColumnName("NAME");
             });
 
             modelBuilder.Entity<Product>(entity =>
@@ -237,24 +189,16 @@ namespace CoffeeManagement.Models
                 entity.ToTable("PRODUCTS");
 
                 entity.Property(e => e.Id)
-                    .HasColumnType("INT IDENTITY")
                     .ValueGeneratedNever()
                     .HasColumnName("ID");
 
-                entity.Property(e => e.Idcategory)
-                    .HasColumnType("INT")
-                    .HasColumnName("IDCATEGORY");
+                entity.Property(e => e.Idcategory).HasColumnName("IDCATEGORY");
 
-                entity.Property(e => e.ImageUrl)
-                    .HasColumnType("NVARCHAR")
-                    .HasColumnName("IMAGE_URL");
+                entity.Property(e => e.ImageUrl).HasColumnName("IMAGE_URL");
 
-                entity.Property(e => e.Name)
-                    .HasColumnType("NVARCHAR(255)")
-                    .HasColumnName("NAME");
+                entity.Property(e => e.Name).HasColumnName("NAME");
 
                 entity.Property(e => e.Price)
-                    .HasColumnType("FLOAT")
                     .HasColumnName("PRICE")
                     .HasDefaultValueSql("0");
 
@@ -269,13 +213,10 @@ namespace CoffeeManagement.Models
                 entity.ToTable("ROLES");
 
                 entity.Property(e => e.Id)
-                    .HasColumnType("INT IDENTITY")
                     .ValueGeneratedNever()
                     .HasColumnName("ID");
 
-                entity.Property(e => e.Name)
-                    .HasColumnType("NVARCHAR(100)")
-                    .HasColumnName("NAME");
+                entity.Property(e => e.Name).HasColumnName("NAME");
             });
 
             modelBuilder.Entity<Staff>(entity =>
@@ -283,37 +224,22 @@ namespace CoffeeManagement.Models
                 entity.ToTable("STAFFS");
 
                 entity.Property(e => e.Id)
-                    .HasColumnType("INT IDENTITY")
                     .ValueGeneratedNever()
                     .HasColumnName("ID");
 
-                entity.Property(e => e.Address)
-                    .HasColumnType("NVARCHAR")
-                    .HasColumnName("ADDRESS");
+                entity.Property(e => e.Address).HasColumnName("ADDRESS");
 
-                entity.Property(e => e.Birthday)
-                    .HasColumnType("DATETIME")
-                    .HasColumnName("BIRTHDAY");
+                entity.Property(e => e.Birthday).HasColumnName("BIRTHDAY");
 
-                entity.Property(e => e.Code)
-                    .HasColumnType("VARCHAR(15)")
-                    .HasColumnName("CODE");
+                entity.Property(e => e.Code).HasColumnName("CODE");
 
-                entity.Property(e => e.Idrole)
-                    .HasColumnType("INT")
-                    .HasColumnName("IDROLE");
+                entity.Property(e => e.Idrole).HasColumnName("IDROLE");
 
-                entity.Property(e => e.Name)
-                    .HasColumnType("NVARCHAR(100)")
-                    .HasColumnName("NAME");
+                entity.Property(e => e.Name).HasColumnName("NAME");
 
-                entity.Property(e => e.Phone)
-                    .HasColumnType("VARCHAR(15)")
-                    .HasColumnName("PHONE");
+                entity.Property(e => e.Phone).HasColumnName("PHONE");
 
-                entity.Property(e => e.Sex)
-                    .HasColumnType("NVARCHAR(20)")
-                    .HasColumnName("SEX");
+                entity.Property(e => e.Sex).HasColumnName("SEX");
 
                 entity.HasOne(d => d.IdroleNavigation)
                     .WithMany(p => p.staff)
@@ -326,17 +252,12 @@ namespace CoffeeManagement.Models
                 entity.ToTable("STAFFACCOUNTS");
 
                 entity.Property(e => e.Id)
-                    .HasColumnType("INT")
                     .ValueGeneratedNever()
                     .HasColumnName("ID");
 
-                entity.Property(e => e.Password)
-                    .HasColumnType("NVARCHAR")
-                    .HasColumnName("PASSWORD");
+                entity.Property(e => e.Password).HasColumnName("PASSWORD");
 
-                entity.Property(e => e.Username)
-                    .HasColumnType("VARCHAR(100)")
-                    .HasColumnName("USERNAME");
+                entity.Property(e => e.Username).HasColumnName("USERNAME");
 
                 entity.HasOne(d => d.IdNavigation)
                     .WithOne(p => p.Staffaccount)
@@ -349,17 +270,12 @@ namespace CoffeeManagement.Models
                 entity.ToTable("TABLES");
 
                 entity.Property(e => e.Id)
-                    .HasColumnType("INT IDENTITY")
                     .ValueGeneratedNever()
                     .HasColumnName("ID");
 
-                entity.Property(e => e.Idstate)
-                    .HasColumnType("INT")
-                    .HasColumnName("IDSTATE");
+                entity.Property(e => e.Idstate).HasColumnName("IDSTATE");
 
-                entity.Property(e => e.Name)
-                    .HasColumnType("NVARCHAR(15)")
-                    .HasColumnName("NAME");
+                entity.Property(e => e.Name).HasColumnName("NAME");
 
                 entity.HasOne(d => d.IdstateNavigation)
                     .WithMany(p => p.Tables)
@@ -371,13 +287,10 @@ namespace CoffeeManagement.Models
                 entity.ToTable("TABLESTATES");
 
                 entity.Property(e => e.Id)
-                    .HasColumnType("INT IDENTITY")
                     .ValueGeneratedNever()
                     .HasColumnName("ID");
 
-                entity.Property(e => e.Name)
-                    .HasColumnType("NVARCHAR(100)")
-                    .HasColumnName("NAME");
+                entity.Property(e => e.Name).HasColumnName("NAME");
             });
 
             OnModelCreatingPartial(modelBuilder);

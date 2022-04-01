@@ -64,7 +64,7 @@ const ViewOrder = (props) => {
         return {
           id: order.id,
           table: order.table.name,
-          time: order.time_order,
+          time: order.time,
           food: order.food.name,
           state: order.state,
           count: order.count,
@@ -80,7 +80,7 @@ const ViewOrder = (props) => {
         items.push({
           id: order.id,
           table: order.table.name,
-          time: order.time_order,
+          time: order.time,
           food: order.food.name,
           state: order.state,
           count: order.count,
@@ -153,7 +153,7 @@ const ViewOrder = (props) => {
           filterModel={filterModel}
           columns={[
             { field: "table", headerName: "Table", flex: 0.2 },
-            { field: "time", headerName: "Time", flex: 0.3, type: "time" },
+            { field: "time", headerName: "Time", flex: 0.3, type: "datetime" },
             { field: "food", headerName: "Food", flex: 1 },
             { field: "count", headerName: "Count", flex: 0.2 },
             { field: "state", headerName: "State", flex: 0.2 },
@@ -167,39 +167,5 @@ const ViewOrder = (props) => {
     </Box>
   );
 };
-
-const top100Films = [
-  { id: uuidv4(), label: "The Shawshank Redemption", year: 1994 },
-  { id: uuidv4(), label: "The Godfather", year: 1972 },
-  { id: uuidv4(), label: "The Godfather: Part II", year: 1974 },
-  { id: uuidv4(), label: "The Dark Knight", year: 2008 },
-  { id: uuidv4(), label: "12 Angry Men", year: 1957 },
-  { id: uuidv4(), label: "Schindler's List", year: 1993 },
-  { id: uuidv4(), label: "Pulp Fiction", year: 1994 },
-  {
-    id: uuidv4(),
-    label: "The Lord of the Rings: The Return of the King",
-    year: 2003,
-  },
-  { id: uuidv4(), label: "The Good, the Bad and the Ugly", year: 1966 },
-  { id: uuidv4(), label: "Fight Club", year: 1999 },
-  {
-    id: uuidv4(),
-    label: "The Lord of the Rings: The Fellowship of the Ring",
-    year: 2001,
-  },
-  {
-    id: uuidv4(),
-    label: "Star Wars: Episode V - The Empire Strikes Back",
-    year: 1980,
-  },
-  { id: uuidv4(), label: "Forrest Gump", year: 1994 },
-  { id: uuidv4(), label: "Inception", year: 2010 },
-  {
-    id: uuidv4(),
-    label: "The Lord of the Rings: The Two Towers",
-    year: 2002,
-  },
-];
 
 export default ViewOrder;

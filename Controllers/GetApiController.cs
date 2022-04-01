@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using CoffeeManagement.Models;
@@ -9,6 +8,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using System.Linq;
 
 namespace CoffeeManagement.Controllers
 {
@@ -25,31 +25,41 @@ namespace CoffeeManagement.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Tables(string id)
+        public IActionResult Tables(string id)
         {
-            var db = new CoffeeDbContext();
-            List<ReturnTable> arr = new List<ReturnTable>();
-            await foreach(var table in db.Tables){
-                arr.Add(new ReturnTable(){
-                    Id = table.Id,
-                    Name = table.Name,
-                    State = db.Tablestates.FirstOrDefault(x => x.Id == table.Idstate).Name,
-                    CountOrder = db.Orders.Count(x => x.Idtable == table.Id && x.Idstate == 0)
-                });
+            using (var db = new CoffeeDbContext()){
+                return new JsonResult(db.Tables.Select(t => new {
+                    Id = t.Id,
+                    Name = t.Name,
+                    State = t.IdstateNavigation.Name,
+                    CountOrder = db.Orders.Count(x => x.Idtable == t.Id && x.Idstate == 1)
+                }).ToArray());
             }
-            return new JsonResult(arr);
         }
 
         [HttpGet]
         public IActionResult Categories(string id)
         {
-            return new JsonResult((new CoffeeDbContext()).Categories.ToArray());
+            using (var db = new CoffeeDbContext()){
+                return new JsonResult(db.Categories.Select(c => new {
+                    c.Id,
+                    c.Name
+                }).ToArray());
+            }
         }
 
         [HttpGet]
         public IActionResult Foods(string id)
         {
-            return new JsonResult((new CoffeeDbContext()).Products.ToArray());
+            using (var db = new CoffeeDbContext()){
+                return new JsonResult(db.Products.Select(p => new {
+                    p.Id,
+                    p.Name,
+                    p.ImageUrl,
+                    p.Price,
+                    Category = p.IdcategoryNavigation.Name
+                }).ToArray());
+            }
         }
 
         [HttpGet]
@@ -105,20 +115,25 @@ namespace CoffeeManagement.Controllers
         [HttpGet]
         public IActionResult Order_Detail_States(string id)
         {
-            var db = new CoffeeDbContext();
-            return new JsonResult(db.Orderdetailstates.ToArray());
+            using (var db = new CoffeeDbContext()){
+                return new JsonResult(db.Orderdetailstates.ToArray());
+            }
         }
 
         [HttpGet]
         public IActionResult Customers(string id)
         {
-            return new JsonResult((new CoffeeDbContext()).Customers.ToArray());
+            using (var db = new CoffeeDbContext()){
+                return new JsonResult(db.Customers.ToArray());
+            }
         }
 
         [HttpGet]
         public IActionResult Payments(string id)
         {
-            return new JsonResult((new CoffeeDbContext()).Bills.ToArray());
+            using (var db = new CoffeeDbContext()){
+                return new JsonResult(db.Bills.ToArray());
+            }
         }
     }
 }

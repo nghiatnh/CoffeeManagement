@@ -17,7 +17,7 @@ namespace CoffeeManagement.Models
         public string Address { get; set; }
         public string Phone { get; set; }
         public string Code { get; set; }
-        public byte[] Birthday { get; set; }
+        public string Birthday { get; set; }
         public double? Point { get; set; }
         public string Sex { get; set; }
 

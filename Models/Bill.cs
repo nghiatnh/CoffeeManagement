@@ -8,7 +8,7 @@ namespace CoffeeManagement.Models
     public partial class Bill
     {
         public long Id { get; set; }
-        public byte[] Paytime { get; set; }
+        public string Paytime { get; set; }
         public string Customername { get; set; }
         public long? Idstaff { get; set; }
         public long? Idcustomer { get; set; }
