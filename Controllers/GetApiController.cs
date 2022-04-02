@@ -14,6 +14,7 @@ namespace CoffeeManagement.Controllers
 {
     [Authorize]
     [Route("/api/{action}/{id?}")]
+    [ApiController]
     public class GetApiController : Controller
     {
 
@@ -27,8 +28,10 @@ namespace CoffeeManagement.Controllers
         [HttpGet]
         public IActionResult Tables(string id)
         {
-            using (var db = new CoffeeDbContext()){
-                return new JsonResult(db.Tables.Select(t => new {
+            using (var db = new CoffeeDbContext())
+            {
+                return new JsonResult(db.Tables.Select(t => new
+                {
                     Id = t.Id,
                     Name = t.Name,
                     State = t.IdstateNavigation.Name,
@@ -38,84 +41,141 @@ namespace CoffeeManagement.Controllers
         }
 
         [HttpGet]
-        public IActionResult Categories(string id)
+        public IActionResult Categories(long? id)
         {
-            using (var db = new CoffeeDbContext()){
-                return new JsonResult(db.Categories.Select(c => new {
-                    c.Id,
-                    c.Name
-                }).ToArray());
+            using (var db = new CoffeeDbContext())
+            {
+                if (id == null)
+                {
+                    return new JsonResult(db.Categories.Select(c => new
+                    {
+                        c.Id,
+                        c.Name
+                    }).ToArray());
+                }
+                else
+                {
+                    var category = db.Categories.FirstOrDefault(x => x.Id == id);
+                    return new JsonResult(db.Categories.Select(x => new
+                    {
+                        x.Id,
+                        x.Name
+                    }).FirstOrDefault(x => x.Id == id));
+                }
             }
         }
 
         [HttpGet]
-        public IActionResult Foods(string id)
+        public IActionResult Foods(long? id)
         {
-            using (var db = new CoffeeDbContext()){
-                return new JsonResult(db.Products.Select(p => new {
-                    p.Id,
-                    p.Name,
-                    p.ImageUrl,
-                    p.Price,
-                    Category = p.IdcategoryNavigation.Name
-                }).ToArray());
+            using (var db = new CoffeeDbContext())
+            {
+                int count = db.Products.Count();
+                if (id == null)
+                {
+                    return new JsonResult(db.Products.Select(p => new
+                    {
+                        p.Id,
+                        p.Name,
+                        p.ImageUrl,
+                        p.Price,
+                        IdCategory = p.Idcategory
+                    }).ToArray());
+                }
+                else
+                {
+                    return new JsonResult(db.Products.Select(p => new
+                    {
+                        p.Id,
+                        p.Name,
+                        p.ImageUrl,
+                        p.Price,
+                        IdCategory = p.Idcategory
+                    }).FirstOrDefault(x => x.Id == id));
+                }
             }
         }
 
         [HttpGet]
-        public async Task<IActionResult> Order_Details(string id)
+        public IActionResult Order_Details(string id)
         {
-            var db = new CoffeeDbContext();
-            List<ReturnOrderDetail> arr = new List<ReturnOrderDetail>();
-            await foreach(var orderdetail in db.Orderdetails){
-                var order = db.Orders.FirstOrDefault(y => y.Id == orderdetail.Idorder);
-                var table = db.Tables.FirstOrDefault(x => x.Id == order.Idtable);
-                arr.Add(new ReturnOrderDetail(){
-                    Id = orderdetail.Id,
-                    Table = new ReturnTable(){
-                        Id = table.Id,
-                        Name = table.Name,
-                        State = db.Tablestates.FirstOrDefault(x => x.Id == table.Idstate).Name,
-                        CountOrder = db.Orders.Count(x => x.Idtable == table.Id && x.Idstate == 0)
-                    },
-                    State = db.Orderdetailstates.FirstOrDefault(x => x.Id == orderdetail.Idstate).Name,
-                    Count = orderdetail.Count,
-                    Time = orderdetail.Ordertime.ToString(),
-                    Food = new ReturnProduct(db.Products.FirstOrDefault(x => x.Id == orderdetail.Idproduct))
-                });
+            using (var db = new CoffeeDbContext())
+            {
+                return new JsonResult(db.Orderdetails.Select(o => new
+                {
+                    o.Id,
+                    Table = o.IdorderNavigation.IdtableNavigation.Name,
+                    State = o.IdstateNavigation.Name,
+                    o.Count,
+                    Time = o.Ordertime,
+                    Food = o.IdproductNavigation.Name
+                }).ToArray());
             }
-            return new JsonResult(arr);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Order_Details(long Idtable, long Idproduct, long Count)
+        public IActionResult Order_Foods(OrderItem item)
         {
-            var db = new CoffeeDbContext();
-            var order = db.Orders.FirstOrDefault(x => x.Idstate == 1 && x.Idtable == Idtable);
-            if (order == null){ 
-                order = new Order(){
-                    Idtable = Idtable,
-                    Idstate = 1,
-                };
-                db.Orders.Add(order);
-                db.SaveChanges();
+            using (var db = new CoffeeDbContext())
+            {
+                try
+                {
+                    var order = db.Orders.FirstOrDefault(x => x.Idstate == 1 && x.Idtable == item.table);
+                    if (order == null)
+                    {
+                        order = new Order()
+                        {
+                            Id = db.Orders.Count() == 0 ? 1 : db.Orders.Max(x => x.Id) + 1,
+                            Idtable = item.table,
+                            Idstate = 1,
+                        };
+                        db.Orders.Add(order);
+                    }
+                    var data = new Orderdetail()
+                    {
+                        Id = db.Orderdetails.Count() == 0 ? 1 : db.Orderdetails.Max(x => x.Id) + 1,
+                        Count = item.count,
+                        Idproduct = item.food,
+                        Idstate = 1,
+                        Idorder = order.Id,
+                        Ordertime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
+                    };
+                    db.Orderdetails.Add(data);
+                    db.SaveChanges();
+                    return new JsonResult(new { success = true });
+                }
+                catch
+                {
+                    return new JsonResult(new { success = false });
+                }
             }
-            var data = new Orderdetail(){
-                Id = 4850,
-                Count = Count,
-                Idproduct = Idproduct,
-                Idstate = 1,
-                Idorder = order.Id,
-            };
-            db.Orderdetails.Add(data);
-            db.SaveChanges();
-            return new JsonResult(new {success = true});
+        }
+
+        [HttpPost]
+        public IActionResult Update_States(OrderStateItem item)
+        {
+            using (var db = new CoffeeDbContext())
+            {
+                try
+                {
+                    foreach (var order in db.Orderdetails.Where(x => item.orders.Contains(x.Id))){
+                        order.Idstate = item.state;
+                    }
+                    db.SaveChanges();
+                    return new JsonResult(new { success = true });
+                }
+                catch
+                {
+                    return new JsonResult(new { success = false });
+                }
+            }
         }
 
         [HttpGet]
         public IActionResult Order_Detail_States(string id)
         {
-            using (var db = new CoffeeDbContext()){
+            using (var db = new CoffeeDbContext())
+            {
                 return new JsonResult(db.Orderdetailstates.ToArray());
             }
         }
@@ -123,7 +183,8 @@ namespace CoffeeManagement.Controllers
         [HttpGet]
         public IActionResult Customers(string id)
         {
-            using (var db = new CoffeeDbContext()){
+            using (var db = new CoffeeDbContext())
+            {
                 return new JsonResult(db.Customers.ToArray());
             }
         }
@@ -131,7 +192,8 @@ namespace CoffeeManagement.Controllers
         [HttpGet]
         public IActionResult Payments(string id)
         {
-            using (var db = new CoffeeDbContext()){
+            using (var db = new CoffeeDbContext())
+            {
                 return new JsonResult(db.Bills.ToArray());
             }
         }

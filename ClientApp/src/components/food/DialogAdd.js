@@ -16,7 +16,7 @@ import api from "../api/api";
 const DialogAdd = (props) => {
   const [tables, setTables] = React.useState([]);
   const [table, setTable] = React.useState(null);
-  const [count, setCount] = React.useState(0);
+  const [count, setCount] = React.useState(1);
 
   useEffect(() => {
     const getTables = async () => {
@@ -28,9 +28,19 @@ const DialogAdd = (props) => {
     getTables();
   }, []);
 
-  const handleAdd = () => {
+  const handleAdd = async () => {
     if (table && count > 0){
-      alert(table.name + " : " +  count)
+      const response = await api.post("/order_foods", {table: table.id, count: count, food: props.selectedFood.id},
+      {
+        headers: {
+          'content-type': 'application/json'
+        }
+      });
+      if (response.data) {
+        props.handleAdd(response.data);
+      }
+    } else {
+      props.handleAdd({success: false});
     }
     props.handleClose();
   };
@@ -59,11 +69,11 @@ const DialogAdd = (props) => {
           }}
         />
         <ButtonGroup disableElevation variant="contained" sx={{ mt: "20px" }}>
-          <Button>
+          <Button onClick={() => {if (count > 1) setCount(count - 1)}}>
             <RemoveOutlined size="small" />
           </Button>
-          <TextField label="Count" size="small" value={count} onChange={(event)=>{setCount(event.target.value)}} />
-          <Button>
+          <TextField InputProps={{readOnly: true, }} label="Count" size="small" value={count} onChange={(event)=>{setCount(parseInt(event.target.value))}} />
+          <Button onClick={() => {setCount(count + 1)}}>
             <AddOutlined size="small" />
           </Button>
         </ButtonGroup>

@@ -29,7 +29,7 @@ const theme = createTheme({
 
 const TableInfo = (props) => {
   const renderEditButton = () => {
-    return props.data.state == "Full" ? (
+    return props.data.state == "Đầy" ? (
       <Link to="/view-order">
         <IconButton aria-label="check-order">
           <BorderColorOutlined sx={{ color: blueGrey[800] }} />
@@ -38,7 +38,7 @@ const TableInfo = (props) => {
     ) : null;
   };
   const renderPaymentButton = () => {
-    return props.data.state == "Full" ? (
+    return props.data.state == "Đầy" ? (
       <Link to="/payment">
         <IconButton aria-label="payment">
           <PaymentOutlined sx={{ color: blueGrey[800] }} />

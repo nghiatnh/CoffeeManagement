@@ -9,9 +9,29 @@ import {
   MenuItem,
   Select,
 } from "@mui/material";
-import React from "react";
+import React, { useState } from "react";
+import api from "../api/api";
 
 const DialogUpdateState = (props) => {
+  const [select, setSelect] = useState(null);
+
+  const handleUpdate = async () => {
+    if (select && props.orders.length > 0){
+      const response = await api.post("/update_states", {orders: props.orders, state: select},
+      {
+        headers: {
+          'content-type': 'application/json'
+        }
+      });
+      if (response.data) {
+        props.handleUpdate(response.data);
+      }
+    } else {
+      props.handleUpdate({success: false});
+    }
+    props.handleClose();
+  }
+
   return (
     <>
       <DialogTitle>Update state of foods</DialogTitle>
@@ -25,17 +45,18 @@ const DialogUpdateState = (props) => {
             labelId="demo-simple-select-label"
             id="demo-simple-select"
             label="State"
-            defaultValue={10}
+            value={select}
+            onChange={(event, child) => {setSelect(child.props.value);}}
           >
-            <MenuItem value={10}>Ten</MenuItem>
-            <MenuItem value={20}>Twenty</MenuItem>
-            <MenuItem value={30}>Thirty</MenuItem>
+            {
+              props.states.map(x => <MenuItem value={x.id}>{x.name}</MenuItem>)
+            }
           </Select>
         </FormControl>
       </DialogContent>
       <DialogActions>
         <Button onClick={props.handleClose}>Cancel</Button>
-        <Button onClick={props.handleClose}>Update</Button>
+        <Button onClick={handleUpdate}>Update</Button>
       </DialogActions>
     </>
   );

@@ -1,14 +1,16 @@
 import {
+  Alert,
   Autocomplete,
   Box,
   Dialog,
   Divider,
   Grid,
   IconButton,
+  Snackbar,
   TextField,
   Typography,
 } from "@mui/material";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { ModeEditOutline } from "@mui/icons-material";
 import DialogUpdateState from "./DialogUpdateState";
 import { v4 as uuidv4 } from "uuid";
@@ -18,12 +20,16 @@ import api from "../api/api";
 const ViewOrder = (props) => {
   const [openRefreshAll, setOpenRefreshAll] = React.useState(false);
   const [openAdd, setOpenAdd] = React.useState(false);
+  const [openAlert, setOpenAlert] = React.useState(false);
+  const [alertColor, setAlertColor] = React.useState("success");
+  const [alertMessage, setAlertMessage] = React.useState("");
   const [orders, setOrders] = React.useState([]);
   const [orderDetails, setOrderDetails] = React.useState([]);
   const [tables, setTables] = React.useState([]);
   const [table, setTable] = React.useState(null);
   const [states, setStates] = React.useState([]);
   const [state, setState] = React.useState(null);
+  const [selectionModel, setSelectionModel] = useState([]);
 
   const [filterModel, setFilterModel] = React.useState({ items: [] });
 
@@ -42,7 +48,7 @@ const ViewOrder = (props) => {
     const getTables = async () => {
       const response = await api.get("/tables");
       if (response.data) {
-       setTables(response.data);
+        setTables(response.data);
       }
     };
     getTables();
@@ -52,7 +58,7 @@ const ViewOrder = (props) => {
     const getStates = async () => {
       const response = await api.get("/order_detail_states");
       if (response.data) {
-       setStates(response.data);
+        setStates(response.data);
       }
     };
     getStates();
@@ -63,9 +69,9 @@ const ViewOrder = (props) => {
       orders.map((order) => {
         return {
           id: order.id,
-          table: order.table.name,
+          table: order.table,
           time: order.time,
-          food: order.food.name,
+          food: order.food,
           state: order.state,
           count: order.count,
         };
@@ -76,12 +82,15 @@ const ViewOrder = (props) => {
   useEffect(() => {
     let items = [];
     orders.map((order) => {
-      if ((!table || order.table.id == table.id) && (!state || order.state == state.name))
+      if (
+        (!table || order.table == table.name) &&
+        (!state || order.state == state.name)
+      )
         items.push({
           id: order.id,
-          table: order.table.name,
+          table: order.table,
           time: order.time,
-          food: order.food.name,
+          food: order.food,
           state: order.state,
           count: order.count,
         });
@@ -95,6 +104,34 @@ const ViewOrder = (props) => {
 
   const handleCloseRefreshAll = () => {
     setOpenRefreshAll(false);
+  };
+
+  const handleCloseAlert = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+
+    setOpenAlert(false);
+  };
+
+  const handleUpdate = (responseData) => {
+    if (responseData.success) {
+      const getOrders = async () => {
+        const response = await api.get("/order_details");
+        if (response.data) {
+          setOrders(response.data);
+        }
+      };
+      getOrders();
+      setAlertColor("success");
+      setAlertMessage("Update state success!");
+      setOpenAlert(true);
+    } else {
+      setOpenAlert(true);
+      setAlertColor("error");
+      setAlertMessage("Update state fail!");
+    }
+    setSelectionModel([]);
   };
 
   return (
@@ -149,6 +186,7 @@ const ViewOrder = (props) => {
       <Box sx={{ mt: "10px", height: "400px", backgroundColor: "white" }}>
         <DataGrid
           checkboxSelection
+          disableSelectionOnClick
           disableColumnFilter
           filterModel={filterModel}
           columns={[
@@ -159,11 +197,25 @@ const ViewOrder = (props) => {
             { field: "state", headerName: "State", flex: 0.2 },
           ]}
           rows={orderDetails}
+          onSelectionModelChange={(newSelectionModel) => {
+            setSelectionModel(newSelectionModel);
+          }}
+          selectionModel={selectionModel}
         />
       </Box>
       <Dialog open={openRefreshAll}>
-        <DialogUpdateState handleClose={handleCloseRefreshAll} />
+        <DialogUpdateState
+          handleClose={handleCloseRefreshAll}
+          states={states}
+          orders={selectionModel}
+          handleUpdate={handleUpdate}
+        />
       </Dialog>
+      <Snackbar open={openAlert} autoHideDuration={3000} onClose={handleCloseAlert}>
+        <Alert onClose={handleCloseAlert} severity={alertColor} sx={{ width: "100%" }}>
+          {alertMessage}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };
