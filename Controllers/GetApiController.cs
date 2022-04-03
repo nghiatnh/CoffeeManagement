@@ -35,7 +35,7 @@ namespace CoffeeManagement.Controllers
                     Id = t.Id,
                     Name = t.Name,
                     State = t.IdstateNavigation.Name,
-                    CountOrder = db.Orders.Count(x => x.Idtable == t.Id && x.Idstate == 1)
+                    CountOrder = t.Idstate == 1 ? 0 : t.Orders.FirstOrDefault(x => x.Idstate == 1).Orderdetails.Count(x => x.Idstate == 1)
                 }).ToArray());
             }
         }
@@ -101,7 +101,7 @@ namespace CoffeeManagement.Controllers
         {
             using (var db = new CoffeeDbContext())
             {
-                return new JsonResult(db.Orderdetails.Select(o => new
+                return new JsonResult(db.Orderdetails.Where(x => x.IdorderNavigation.Idstate == 1).Select(o => new
                 {
                     o.Id,
                     Table = o.IdorderNavigation.IdtableNavigation.Name,
@@ -161,6 +161,30 @@ namespace CoffeeManagement.Controllers
                     foreach (var order in db.Orderdetails.Where(x => item.orders.Contains(x.Id))){
                         order.Idstate = item.state;
                     }
+                    db.SaveChanges();
+                    return new JsonResult(new { success = true });
+                }
+                catch
+                {
+                    return new JsonResult(new { success = false });
+                }
+            }
+        }
+
+        [HttpPost]
+        public IActionResult Payments(PaymentItem item)
+        {
+            using (var db = new CoffeeDbContext())
+            {
+                try
+                {
+                    var bill = new Bill(){
+                        Id = db.Orders.FirstOrDefault(x => x.Idtable == item.table && x.Idstate == 1).Id,
+                        Paytime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
+                        Customername = item.customerName,
+                        Idstaff = db.Staffaccounts.FirstOrDefault(x => x.Username == item.staffName).Id,
+                    };
+                    db.Bills.Add(bill);
                     db.SaveChanges();
                     return new JsonResult(new { success = true });
                 }
