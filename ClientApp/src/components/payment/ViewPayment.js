@@ -60,10 +60,10 @@ const ViewPayment = (props) => {
       payments.map((payment) => {
         return {
           id: payment.id,
-          table: payment.table.name,
+          table: payment.table,
           customer: payment.customer,
-          time: payment.pay_time,
-          totalPrice: payment.total_price,
+          time: payment.paytime,
+          totalPrice: payment.totalPrice,
         };
       })
     );

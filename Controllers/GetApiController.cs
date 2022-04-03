@@ -218,7 +218,14 @@ namespace CoffeeManagement.Controllers
         {
             using (var db = new CoffeeDbContext())
             {
-                return new JsonResult(db.Bills.ToArray());
+                return new JsonResult(db.Bills.Select(x => new {
+                    x.Id,
+                    Customer = x.Customername,
+                    x.IdstaffNavigation.Name,
+                    x.Paytime,
+                    Table = db.Orders.FirstOrDefault(y => y.Id == x.Id).IdtableNavigation.Name,
+                    TotalPrice = db.Orders.FirstOrDefault(y => y.Id == x.Id).Orderdetails.Sum(z => z.IdproductNavigation.Price * z.Count)
+                }).ToArray());
             }
         }
     }
