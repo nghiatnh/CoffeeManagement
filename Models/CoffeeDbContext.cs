@@ -20,6 +20,7 @@ namespace CoffeeManagement.Models
         public virtual DbSet<Bill> Bills { get; set; }
         public virtual DbSet<Category> Categories { get; set; }
         public virtual DbSet<Customer> Customers { get; set; }
+        public virtual DbSet<Discountcode> Discountcodes { get; set; }
         public virtual DbSet<Order> Orders { get; set; }
         public virtual DbSet<Orderdetail> Orderdetails { get; set; }
         public virtual DbSet<Orderdetailstate> Orderdetailstates { get; set; }
@@ -50,11 +51,9 @@ namespace CoffeeManagement.Models
                     .ValueGeneratedNever()
                     .HasColumnName("ID");
 
-                entity.Property(e => e.Customername)
-                    .IsRequired()
-                    .HasColumnName("CUSTOMERNAME");
-
                 entity.Property(e => e.Idcustomer).HasColumnName("IDCUSTOMER");
+
+                entity.Property(e => e.Iddiscount).HasColumnName("IDDISCOUNT");
 
                 entity.Property(e => e.Idstaff).HasColumnName("IDSTAFF");
 
@@ -68,6 +67,10 @@ namespace CoffeeManagement.Models
                 entity.HasOne(d => d.IdcustomerNavigation)
                     .WithMany(p => p.Bills)
                     .HasForeignKey(d => d.Idcustomer);
+
+                entity.HasOne(d => d.IddiscountNavigation)
+                    .WithMany(p => p.Bills)
+                    .HasForeignKey(d => d.Iddiscount);
 
                 entity.HasOne(d => d.IdstaffNavigation)
                     .WithMany(p => p.Bills)
@@ -108,6 +111,39 @@ namespace CoffeeManagement.Models
                     .HasDefaultValueSql("0");
 
                 entity.Property(e => e.Sex).HasColumnName("SEX");
+            });
+
+            modelBuilder.Entity<Discountcode>(entity =>
+            {
+                entity.ToTable("DISCOUNTCODES");
+
+                entity.Property(e => e.Id)
+                    .ValueGeneratedNever()
+                    .HasColumnName("ID");
+
+                entity.Property(e => e.Count).HasColumnName("COUNT");
+
+                entity.Property(e => e.Duetime)
+                    .IsRequired()
+                    .HasColumnName("DUETIME");
+
+                entity.Property(e => e.Idcustomer).HasColumnName("IDCUSTOMER");
+
+                entity.Property(e => e.Limitprice).HasColumnName("LIMITPRICE");
+
+                entity.Property(e => e.Minprice)
+                    .HasColumnName("MINPRICE")
+                    .HasDefaultValueSql("0");
+
+                entity.Property(e => e.Name).HasColumnName("NAME");
+
+                entity.Property(e => e.Used)
+                    .HasColumnName("USED")
+                    .HasDefaultValueSql("0");
+
+                entity.HasOne(d => d.IdcustomerNavigation)
+                    .WithMany(p => p.Discountcodes)
+                    .HasForeignKey(d => d.Idcustomer);
             });
 
             modelBuilder.Entity<Order>(entity =>

@@ -22,43 +22,71 @@ import React, { useEffect } from "react";
 import api from "../api/api";
 
 const DialogPayment = (props) => {
-  const [tables, setTables] = React.useState([]);
-  const [table, setTable] = React.useState(null);
+  const [customer, setCustomer] = React.useState(null);
+  const [customers, setCustomers] = React.useState([]);
+  const [discount, setDiscount] = React.useState(null);
+  const [discounts, setDiscounts] = React.useState([]);
+  const [bill, setBill] = React.useState(null);
   const [count, setCount] = React.useState(1);
 
   useEffect(() => {
-    const getTables = async () => {
-      const response = await api.get("/tables");
+    const getCustomers = async () => {
+      const response = await api.get("/customers");
       if (response.data) {
-        setTables(response.data);
+        setCustomers(response.data);
       }
     };
-    getTables();
+    getCustomers();
   }, []);
 
-  const handleAdd = async () => {
-    if (table && count > 0) {
-      const response = await api.post(
-        "/order_foods",
-        { table: table.id, count: count, food: props.selectedFood.id },
-        {
-          headers: {
-            "content-type": "application/json",
-          },
-        }
+  useEffect(() => {
+    const getBill = async () => {
+      const response = await api.get("/bills?table=" + props.table.id);
+      if (response.data) {
+        setBill(response.data);
+      }
+    };
+    getBill();
+  }, []);
+
+  useEffect(() => {
+    const getDiscounts = async () => {
+      const response = await api.get(
+        "/discounts" + (customer != null ? "?customer=" + customer.id : "")
       );
       if (response.data) {
-        props.handleAdd(response.data);
+        setDiscounts(response.data);
+      }
+    };
+    getDiscounts();
+    setDiscount(null);
+  }, [customer]);
+
+  const handlePayment = async () => {
+    if (customer){
+      const response = await api.post("/payments", {table: props.table.id, customer: customer.id, discountCode: discount ? discount.id : null},
+      {
+        headers: {
+          'content-type': 'application/json'
+        }
+      });
+      if (response.data) {
+        props.handlePayment(response.data);
       }
     } else {
-      props.handleAdd({ success: false });
+      props.handlePayment({success: false});
     }
     props.handleClose();
   };
 
-  const filterOptions = createFilterOptions({
+  const filterCustomerOptions = createFilterOptions({
     matchFrom: "any",
-    stringify: (option) => option.name + option.id * 2,
+    stringify: (option) => option.name + option.phone + option.code,
+  });
+
+  const filterDiscountOptions = createFilterOptions({
+    matchFrom: "any",
+    stringify: (option) => option.name,
   });
 
   return (
@@ -78,7 +106,7 @@ const DialogPayment = (props) => {
               <InputAdornment position="start">Table: </InputAdornment>
             ),
           }}
-          value={"Table 1"}
+          value={props.table.name}
         />
         <TextField
           size={"small"}
@@ -89,24 +117,31 @@ const DialogPayment = (props) => {
               <InputAdornment position="start">Total price: </InputAdornment>
             ),
           }}
-          value={111111}
+          value={
+            (bill ? bill.totalPrice : null) +
+            (discount
+              ? " - " +
+                (discount.count * bill.totalPrice < discount.limitprice ? discount.count * bill.totalPrice : discount.limitprice) +
+                " = " +
+                (bill.totalPrice - (discount.count * bill.totalPrice < discount.limitprice ? discount.count * bill.totalPrice : discount.limitprice))
+              : "")
+            }
         />
         <Autocomplete
           autoComplete
           size="small"
           id="combo-box-table"
           {...{
-            options: tables,
+            options: customers,
             getOptionLabel: (option) => option.name,
           }}
           renderOption={(props, option) => {
-            console.log(props);
             props.className =
               props.className + " " + props.className + "-apply";
             return (
               <Box {...props} style={{ display: "block" }}>
                 <Typography gutterBottom variant="h6" component="div">
-                  {option.id}
+                  {option.name}
                 </Typography>
                 <Typography
                   gutterBottom
@@ -118,17 +153,26 @@ const DialogPayment = (props) => {
                     whiteSpace: "nowrap",
                   }}
                 >
-                  {" "}
-                  {option.name +
-                    "fkjwbfkjw wefkbwf fjwej wkefkwjef kf wefkwhe kwjefbkwefb kjwbfkjew kwefjbwkef"}
+                  Phone: {option.phone}
+                </Typography>
+                <Typography
+                  gutterBottom
+                  variant="caption"
+                  component="div"
+                  sx={{
+                    textOverflow: "ellipsis",
+                    overflow: "hidden",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  Code: {option.code}
                 </Typography>
               </Box>
             );
           }}
-          filterOptions={filterOptions}
-          value={table}
+          filterOptions={filterCustomerOptions}
+          value={customer}
           renderInput={(params) => {
-            console.log(params);
             params.InputProps.startAdornment = (
               <InputAdornment position="start">Customer: </InputAdornment>
             );
@@ -136,26 +180,25 @@ const DialogPayment = (props) => {
           }}
           sx={{ backgroundColor: "white", mt: "15px" }}
           onChange={(event, newValue) => {
-            setTable(newValue);
+            setCustomer(newValue);
           }}
         />
-        
+
         <Autocomplete
           autoComplete
           size="small"
           id="combo-box-table"
           {...{
-            options: tables,
+            options: discounts,
             getOptionLabel: (option) => option.name,
           }}
           renderOption={(props, option) => {
-            console.log(props);
             props.className =
               props.className + " " + props.className + "-apply";
             return (
               <Box {...props} style={{ display: "block" }}>
                 <Typography gutterBottom variant="h6" component="div">
-                  {option.id}
+                  {option.name}
                 </Typography>
                 <Typography
                   gutterBottom
@@ -167,17 +210,14 @@ const DialogPayment = (props) => {
                     whiteSpace: "nowrap",
                   }}
                 >
-                  {" "}
-                  {option.name +
-                    "fkjwbfkjw wefkbwf fjwej wkefkwjef kf wefkwhe kwjefbkwefb kjwbfkjew kwefjbwkef"}
+                  {"Discount " + option.count * 100 + "%"}
                 </Typography>
               </Box>
             );
           }}
-          filterOptions={filterOptions}
-          value={table}
+          filterOptions={filterDiscountOptions}
+          value={discount}
           renderInput={(params) => {
-            console.log(params);
             params.InputProps.startAdornment = (
               <InputAdornment position="start">Discount code: </InputAdornment>
             );
@@ -185,13 +225,14 @@ const DialogPayment = (props) => {
           }}
           sx={{ backgroundColor: "white", mt: "15px" }}
           onChange={(event, newValue) => {
-            setTable(newValue);
+            setDiscount(newValue);
+            console.log(newValue);
           }}
         />
       </DialogContent>
       <DialogActions>
         <Button onClick={props.handleClose}>Cancel</Button>
-        <Button onClick={handleAdd}>Add</Button>
+        <Button onClick={handlePayment}>Pay</Button>
       </DialogActions>
     </Box>
   );

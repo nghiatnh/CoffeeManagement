@@ -10,6 +10,7 @@ namespace CoffeeManagement.Models
         public Customer()
         {
             Bills = new HashSet<Bill>();
+            Discountcodes = new HashSet<Discountcode>();
         }
 
         public long Id { get; set; }
@@ -22,5 +23,6 @@ namespace CoffeeManagement.Models
         public string Sex { get; set; }
 
         public virtual ICollection<Bill> Bills { get; set; }
+        public virtual ICollection<Discountcode> Discountcodes { get; set; }
     }
 }

@@ -19,7 +19,6 @@ import api from "../api/api";
 
 const ViewOrder = (props) => {
   const [openRefreshAll, setOpenRefreshAll] = React.useState(false);
-  const [openAdd, setOpenAdd] = React.useState(false);
   const [openAlert, setOpenAlert] = React.useState(false);
   const [alertColor, setAlertColor] = React.useState("success");
   const [alertMessage, setAlertMessage] = React.useState("");

@@ -1,5 +1,6 @@
 import {
   Box,
+  Button,
   ButtonGroup,
   createTheme,
   Divider,
@@ -28,6 +29,11 @@ const theme = createTheme({
 });
 
 const TableInfo = (props) => {
+
+  const handleClickPayment = (table) => {
+    props.handleOpenPayment(table);
+  }
+
   const renderEditButton = () => {
     return props.data.state == "Đầy" ? (
       <Link to="/view-order">
@@ -37,13 +43,14 @@ const TableInfo = (props) => {
       </Link>
     ) : null;
   };
+
   const renderPaymentButton = () => {
     return props.data.state == "Đầy" ? (
-      <Link to="/payment">
+      <Box onClick={() => {handleClickPayment(props.data)}}>
         <IconButton aria-label="payment">
           <PaymentOutlined sx={{ color: blueGrey[800] }} />
         </IconButton>
-      </Link>
+      </Box>
     ) : null;
   };
 

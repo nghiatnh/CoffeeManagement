@@ -178,19 +178,21 @@ namespace CoffeeManagement.Controllers
             {
                 try
                 {
+                    item.staffName = HttpContext.User.Identity.Name;
                     var bill = new Bill(){
                         Id = db.Orders.FirstOrDefault(x => x.Idtable == item.table && x.Idstate == 1).Id,
                         Paytime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
-                        Customername = item.customerName,
                         Idstaff = db.Staffaccounts.FirstOrDefault(x => x.Username == item.staffName).Id,
+                        Iddiscount = item.discountCode,
+                        Idcustomer = item.customer,
                     };
                     db.Bills.Add(bill);
                     db.SaveChanges();
                     return new JsonResult(new { success = true });
                 }
-                catch
+                catch (Exception e)
                 {
-                    return new JsonResult(new { success = false });
+                    return new JsonResult(new {success = false });
                 }
             }
         }
@@ -209,7 +211,27 @@ namespace CoffeeManagement.Controllers
         {
             using (var db = new CoffeeDbContext())
             {
-                return new JsonResult(db.Customers.ToArray());
+                return new JsonResult(db.Customers.Select(x => new {
+                    x.Id,
+                    x.Name,
+                    x.Address,
+                    x.Birthday,
+                    x.Code,
+                    x.Phone,
+                    x.Point
+                }).ToArray());
+            }
+        }
+
+        [HttpGet]
+        public IActionResult Bills(long table)
+        {
+            using (var db = new CoffeeDbContext())
+            {
+                return new JsonResult(db.Orders.Where(x => x.Idtable == table && x.Idstate == 1).Select(x => new {
+                    x.Id,
+                    TotalPrice = x.Orderdetails.Where(y => y.Idstate == 2).Sum(y => y.Count * y.IdproductNavigation.Price)
+                }).FirstOrDefault());
             }
         }
 
@@ -220,11 +242,26 @@ namespace CoffeeManagement.Controllers
             {
                 return new JsonResult(db.Bills.Select(x => new {
                     x.Id,
-                    Customer = x.Customername,
                     x.IdstaffNavigation.Name,
                     x.Paytime,
+                    customer = "(" + x.Idcustomer + ") " + x.IdcustomerNavigation.Name,
                     Table = db.Orders.FirstOrDefault(y => y.Id == x.Id).IdtableNavigation.Name,
                     TotalPrice = db.Orders.FirstOrDefault(y => y.Id == x.Id).Orderdetails.Sum(z => z.IdproductNavigation.Price * z.Count)
+                }).ToArray());
+            }
+        }
+
+        [HttpGet]
+        public IActionResult Discounts(string id, long? customer, long price = 0)
+        {
+            using (var db = new CoffeeDbContext())
+            {
+                return new JsonResult(db.Discountcodes.Where(x => (x.Idcustomer == null || x.Idcustomer == customer) && x.Duetime.CompareTo("04-04-2022") > 0 && x.Minprice <= price && x.Used == 0).Select(x => new {
+                    x.Id,
+                    x.Duetime,
+                    x.Count,
+                    x.Limitprice,
+                    x.Name
                 }).ToArray());
             }
         }
