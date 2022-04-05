@@ -158,7 +158,8 @@ namespace CoffeeManagement.Controllers
             {
                 try
                 {
-                    foreach (var order in db.Orderdetails.Where(x => item.orders.Contains(x.Id))){
+                    foreach (var order in db.Orderdetails.Where(x => item.orders.Contains(x.Id)))
+                    {
                         order.Idstate = item.state;
                     }
                     db.SaveChanges();
@@ -179,7 +180,8 @@ namespace CoffeeManagement.Controllers
                 try
                 {
                     item.staffName = HttpContext.User.Identity.Name;
-                    var bill = new Bill(){
+                    var bill = new Bill()
+                    {
                         Id = db.Orders.FirstOrDefault(x => x.Idtable == item.table && x.Idstate == 1).Id,
                         Paytime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
                         Idstaff = db.Staffaccounts.FirstOrDefault(x => x.Username == item.staffName).Id,
@@ -192,7 +194,7 @@ namespace CoffeeManagement.Controllers
                 }
                 catch (Exception e)
                 {
-                    return new JsonResult(new {success = false });
+                    return new JsonResult(new { success = false });
                 }
             }
         }
@@ -211,7 +213,8 @@ namespace CoffeeManagement.Controllers
         {
             using (var db = new CoffeeDbContext())
             {
-                return new JsonResult(db.Customers.Select(x => new {
+                return new JsonResult(db.Customers.Select(x => new
+                {
                     x.Id,
                     x.Name,
                     x.Address,
@@ -228,7 +231,8 @@ namespace CoffeeManagement.Controllers
         {
             using (var db = new CoffeeDbContext())
             {
-                return new JsonResult(db.Orders.Where(x => x.Idtable == table && x.Idstate == 1).Select(x => new {
+                return new JsonResult(db.Orders.Where(x => x.Idtable == table && x.Idstate == 1).Select(x => new
+                {
                     x.Id,
                     TotalPrice = x.Orderdetails.Where(y => y.Idstate == 2).Sum(y => y.Count * y.IdproductNavigation.Price)
                 }).FirstOrDefault());
@@ -240,13 +244,18 @@ namespace CoffeeManagement.Controllers
         {
             using (var db = new CoffeeDbContext())
             {
-                return new JsonResult(db.Bills.Select(x => new {
+                return new JsonResult(db.Bills.Select(x => new
+                {
                     x.Id,
                     x.IdstaffNavigation.Name,
                     x.Paytime,
                     customer = "(" + x.Idcustomer + ") " + x.IdcustomerNavigation.Name,
                     Table = db.Orders.FirstOrDefault(y => y.Id == x.Id).IdtableNavigation.Name,
-                    TotalPrice = db.Orders.FirstOrDefault(y => y.Id == x.Id).Orderdetails.Sum(z => z.IdproductNavigation.Price * z.Count)
+                    TotalPrice = db.Orders.FirstOrDefault(y => y.Id == x.Id).Orderdetails.Where(x => x.Idstate == 2).Sum(x => x.IdproductNavigation.Price * x.Count),
+                    discount = x.Iddiscount == null ? null : new {
+                        x.IddiscountNavigation.Count,
+                        x.IddiscountNavigation.Limitprice,
+                    }
                 }).ToArray());
             }
         }
@@ -256,7 +265,8 @@ namespace CoffeeManagement.Controllers
         {
             using (var db = new CoffeeDbContext())
             {
-                return new JsonResult(db.Discountcodes.Where(x => (x.Idcustomer == null || x.Idcustomer == customer) && x.Duetime.CompareTo("04-04-2022") > 0 && x.Minprice <= price && x.Used == 0).Select(x => new {
+                return new JsonResult(db.Discountcodes.Where(x => (x.Idcustomer == null || x.Idcustomer == customer) && x.Duetime.CompareTo("04-04-2022") > 0 && x.Minprice <= price && x.Used == 0).Select(x => new
+                {
                     x.Id,
                     x.Duetime,
                     x.Count,

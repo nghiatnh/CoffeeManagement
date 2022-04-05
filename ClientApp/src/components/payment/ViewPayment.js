@@ -30,6 +30,7 @@ const ViewPayment = (props) => {
       const response = await api.get("/payments");
       if (response.data) {
         setPayments(response.data);
+        console.log(response.data);
       }
     };
     getPayments();
@@ -63,7 +64,7 @@ const ViewPayment = (props) => {
           table: payment.table,
           customer: payment.customer,
           time: payment.paytime,
-          totalPrice: payment.totalPrice,
+          totalPrice: payment.totalPrice - (payment.discount ? Math.min(payment.totalPrice * payment.discount.count, payment.discount.limitprice) : 0),
         };
       })
     );
@@ -73,21 +74,21 @@ const ViewPayment = (props) => {
     let items = [];
     payments.map((payment) => {
       if (
-        (!table || payment.table.id == table.id) &&
-        (!customer || payment.customer.id == customer.id) &&
-        (!startDate || new Date(payment.pay_time) >= startDate) &&
-        (!endDate || new Date(payment.pay_time) <= endDate)
+        (!table || payment.table == table.name) &&
+        (!customer || payment.customer == "(" + customer.id + ") " + customer.name) &&
+        (!startDate || isNaN(startDate) || new Date(payment.paytime) >= startDate) &&
+        (!endDate || isNaN(endDate) || new Date(payment.paytime) <= endDate)
       )
         items.push({
           id: payment.id,
-          table: payment.table.name,
+          table: payment.table,
           customer: payment.customer,
-          time: payment.pay_time,
-          totalPrice: payment.total_price,
+          time: payment.paytime,
+          totalPrice: payment.totalPrice - (payment.discount ? Math.min(payment.totalPrice * payment.discount.count, payment.discount.limitprice) : 0),
         });
     });
     setPaymentDetails(items);
-  }, [customer, table]);
+  }, [customer, table, startDate, endDate]);
 
   return (
     <Box>
@@ -171,19 +172,6 @@ const ViewPayment = (props) => {
             { field: "customer", headerName: "Customer", flex: 0.5 },
             { field: "time", headerName: "Time", flex: 0.25, type: "time" },
             { field: "totalPrice", headerName: "Total price", flex: 0.25 },
-            {
-              field: "",
-              flex: 0.15,
-              type: "actions",
-              renderCell: (params) => {
-                return (
-                  <IconButton>
-                    {" "}
-                    <VisibilityOffOutlined />
-                  </IconButton>
-                );
-              },
-            },
           ]}
           rows={paymentDetails}
         />
